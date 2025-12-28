@@ -17,6 +17,6 @@ export class SeriesController {
 
   @Post('search')
   searchSeries(@Body() body: any) {
-    return this.seriesService.serachSeries(body);
+    return this.seriesService.searchSeries(body);
   }
 }

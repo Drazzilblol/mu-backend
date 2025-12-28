@@ -25,11 +25,24 @@ export class ReleasesService {
       const ids = response.results.map((res) => res.metadata.series.series_id);
 
       const searchResult = await this.seriesMetadataRepository.findBy({
-        seriesId: Any(ids),
+        series_id: Any(ids),
       });
 
       searchResult.forEach((res) => {
-        searchMetaMap[res.seriesId] = res;
+        searchMetaMap[res.series_id] = res;
+
+        searchMetaMap[res.series_id] = {
+          ...res,
+          image: {
+            url: {
+              original: res.original,
+              thumb: res.thumb,
+            },
+          },
+          genres: res.genres.map((genre) => ({ genre: genre })),
+        };
+        delete searchMetaMap[res.series_id].original;
+        delete searchMetaMap[res.series_id].thumb;
       });
 
       const resultsWithMeta = response.results.map((res) => {

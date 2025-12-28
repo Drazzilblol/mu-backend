@@ -25,7 +25,7 @@ export class SeriesEntity {
 @Entity({ name: 'series-metadata' })
 export class SeriesMetadataEntity {
   @PrimaryColumn()
-  seriesId: string;
+  series_id: string;
   @Column()
   title: string;
   @Column()
@@ -40,10 +40,6 @@ export class SeriesMetadataEntity {
   original: string;
   @Column()
   thumb: string;
-  @Column()
-  height: number;
-  @Column()
-  width: number;
   @CreateDateColumn()
   createdAt: Date;
   @UpdateDateColumn()
