@@ -50,7 +50,7 @@ export class ReleasesService {
           metadata: res.metadata,
           record: {
             ...res.record,
-            meta: searchMetaMap[res.metadata.series.series_id],
+            metadata: searchMetaMap[res.metadata.series.series_id],
           },
         };
       });
