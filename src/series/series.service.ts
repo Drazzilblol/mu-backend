@@ -92,7 +92,9 @@ export class SeriesService {
               year: result.record.year || '',
               title: result.record.title,
               genres: [
-                ...result.record.genres.map((genre) => genre.genre as string),
+                ...(result.record.genres?.map(
+                  (genre) => genre.genre as string,
+                ) || []),
               ],
             };
           }),
