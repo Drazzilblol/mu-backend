@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { SeriesModule } from './series/series.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReleasesModule } from './releases/releases.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -15,7 +16,7 @@ import { ReleasesModule } from './releases/releases.module';
     database: 'postgres',
     autoLoadEntities: true,
     synchronize: true,
-  }), SeriesModule, ReleasesModule],
+  }), SeriesModule, ReleasesModule, CategoriesModule],
   controllers: [AppController],
   providers: [AppService],
 })
