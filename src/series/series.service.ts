@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, map } from 'rxjs';
 import { SeriesMetadataEntity } from './entities/series.entity';
 import { Any, Repository } from 'typeorm';
 import { url } from 'inspector';
@@ -25,23 +25,27 @@ export class SeriesService {
       this.httpService.get(
         `https://api.mangaupdates.com/v1/series/${seriesId}`,
       ),
-    ).then(async (axiosResponse: AxiosResponse) => {
-      const response = axiosResponse.data;
+    )
+      .then(async (axiosResponse: AxiosResponse) => {
+        const response = axiosResponse.data;
 
-      this.createOrUpdateMetadata([
-        {
-          series_id: response.series_id,
-          original: response.image.url.original || '',
-          thumb: response.image.url.thumb || '',
-          bayesian_rating: response.bayesian_rating || 0,
-          type: response.type,
-          year: response.year || '',
-          title: response.title,
-          genres: [...response.genres.map((genre) => genre.genre as string)],
-        },
-      ]);
-      return response;
-    });
+        this.createOrUpdateMetadata([
+          {
+            series_id: response.series_id,
+            original: response.image.url.original || '',
+            thumb: response.image.url.thumb || '',
+            bayesian_rating: response.bayesian_rating || 0,
+            type: response.type,
+            year: response.year || '',
+            title: response.title,
+            genres: [...response.genres.map((genre) => genre.genre as string)],
+          },
+        ]);
+        return response;
+      })
+      .catch((err) => {
+        throw new HttpException(err.message, err.status);
+      });
   }
 
   private async createOrUpdateMetadata(values: any[]) {
@@ -163,5 +167,41 @@ export class SeriesService {
     });
 
     return response;
+  }
+
+  async getSeriesGroups(id: string): Promise<any> {
+    return this.httpService
+      .get(`https://api.mangaupdates.com/v1/series/${id}/groups`)
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async getSeriesRatingRainbow(id: string): Promise<any> {
+    return this.httpService
+      .get(`https://api.mangaupdates.com/v1/series/${id}/ratingrainbow`)
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async searchSeriesComments(id: string, body: any): Promise<any> {
+    return this.httpService
+      .post(
+        `https://api.mangaupdates.com/v1/series/${id}/comments/search`,
+        body,
+      )
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
   }
 }

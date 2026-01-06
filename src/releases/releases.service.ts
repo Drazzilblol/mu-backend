@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
-import { firstValueFrom, map, mergeMap } from 'rxjs';
+import { catchError, firstValueFrom, map, mergeMap } from 'rxjs';
 import { SeriesMetadataEntity } from 'src/series/entities/series.entity';
 import { Any, Repository } from 'typeorm';
 
@@ -19,43 +19,60 @@ export class ReleasesService {
       this.httpService.get(
         `https://api.mangaupdates.com/v1/releases/days?page=${page}&include_metadata=true`,
       ),
-    ).then(async (axiosResponse: AxiosResponse) => {
-      const searchMetaMap = {};
-      const response = axiosResponse.data;
-      const ids = response.results.map((res) => res.metadata.series.series_id);
+    )
+      .then(async (axiosResponse: AxiosResponse) => {
+        const searchMetaMap = {};
+        const response = axiosResponse.data;
+        const ids = response.results.map(
+          (res) => res.metadata.series.series_id,
+        );
 
-      const searchResult = await this.seriesMetadataRepository.findBy({
-        series_id: Any(ids),
-      });
+        const searchResult = await this.seriesMetadataRepository.findBy({
+          series_id: Any(ids),
+        });
 
-      searchResult.forEach((res) => {
-        searchMetaMap[res.series_id] = res;
+        searchResult.forEach((res) => {
+          searchMetaMap[res.series_id] = res;
 
-        searchMetaMap[res.series_id] = {
-          ...res,
-          image: {
-            url: {
-              original: res.original,
-              thumb: res.thumb,
+          searchMetaMap[res.series_id] = {
+            ...res,
+            image: {
+              url: {
+                original: res.original,
+                thumb: res.thumb,
+              },
             },
-          },
-          genres: res.genres.map((genre) => ({ genre: genre })),
-        };
-        delete searchMetaMap[res.series_id].original;
-        delete searchMetaMap[res.series_id].thumb;
-      });
+            genres: res.genres.map((genre) => ({ genre: genre })),
+          };
+          delete searchMetaMap[res.series_id].original;
+          delete searchMetaMap[res.series_id].thumb;
+        });
 
-      const resultsWithMeta = response.results.map((res) => {
-        return {
-          metadata: res.metadata,
-          record: {
-            ...res.record,
-            metadata: searchMetaMap[res.metadata.series.series_id],
-          },
-        };
-      });
+        const resultsWithMeta = response.results.map((res) => {
+          return {
+            metadata: res.metadata,
+            record: {
+              ...res.record,
+              metadata: searchMetaMap[res.metadata.series.series_id],
+            },
+          };
+        });
 
-      return { ...response, results: resultsWithMeta };
-    });
+        return { ...response, results: resultsWithMeta };
+      })
+      .catch((error) => {
+        throw new HttpException(error.message, error.status);
+      });
+  }
+
+  async searchReleases(body: any): Promise<any> {
+    return this.httpService
+      .post(`https://api.mangaupdates.com/v1/releases/search`, body)
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
   }
 }

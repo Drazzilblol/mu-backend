@@ -19,4 +19,19 @@ export class SeriesController {
   searchSeries(@Body() body: any) {
     return this.seriesService.searchSeries(body);
   }
+
+  @Get(':id/groups')
+  getSeriesGroups(@Param('id') id: string) {
+    return this.seriesService.getSeriesGroups(id);
+  }
+
+  @Get(':id/ratingrainbow')
+  getSeriesRatingRainbow(@Param('id') id: string) {
+    return this.seriesService.getSeriesRatingRainbow(id);
+  }
+
+  @Post(':id/comments/search')
+  searchSeriesComments(@Param('id') id: string, @Body() body: any) {
+    return this.seriesService.searchSeriesComments(id, body);
+  }
 }
