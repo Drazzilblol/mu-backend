@@ -10,8 +10,8 @@ export class PublishersController {
     return this.publishersService.getPublisher(id);
   }
 
-  @Get('publication')
-  getPublisherPublications(@Query('pubname') pubname: string) {
+  @Get('/publication/:pubname')
+  getPublisherPublications(@Param('pubname') pubname: string) {
     return this.publishersService.getPublisherPublications(pubname);
   }
 
