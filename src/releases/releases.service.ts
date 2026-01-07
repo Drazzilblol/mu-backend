@@ -1,17 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import { catchError, firstValueFrom, map, mergeMap } from 'rxjs';
-import { SeriesMetadataEntity } from 'src/series/entities/series.entity';
-import { Any, Repository } from 'typeorm';
+import { SeriesMetadataService } from 'src/series-metadata/series-metadata.service';
 
 @Injectable()
 export class ReleasesService {
   constructor(
     private readonly httpService: HttpService,
-    @InjectRepository(SeriesMetadataEntity)
-    private seriesMetadataRepository: Repository<SeriesMetadataEntity>,
+    private readonly seriesMetadataService: SeriesMetadataService,
   ) {}
 
   async getReleases(page: number): Promise<AxiosResponse<any[]>> {
@@ -21,39 +18,19 @@ export class ReleasesService {
       ),
     )
       .then(async (axiosResponse: AxiosResponse) => {
-        const searchMetaMap = {};
         const response = axiosResponse.data;
         const ids = response.results.map(
           (res) => res.metadata.series.series_id,
         );
 
-        const searchResult = await this.seriesMetadataRepository.findBy({
-          series_id: Any(ids),
-        });
-
-        searchResult.forEach((res) => {
-          searchMetaMap[res.series_id] = res;
-
-          searchMetaMap[res.series_id] = {
-            ...res,
-            image: {
-              url: {
-                original: res.original,
-                thumb: res.thumb,
-              },
-            },
-            genres: res.genres.map((genre) => ({ genre: genre })),
-          };
-          delete searchMetaMap[res.series_id].original;
-          delete searchMetaMap[res.series_id].thumb;
-        });
+        const metadata = await this.seriesMetadataService.getMetadataByIds(ids);
 
         const resultsWithMeta = response.results.map((res) => {
           return {
             metadata: res.metadata,
             record: {
               ...res.record,
-              metadata: searchMetaMap[res.metadata.series.series_id],
+              metadata: metadata[res.metadata.series.series_id],
             },
           };
         });

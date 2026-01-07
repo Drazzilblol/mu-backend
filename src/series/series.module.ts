@@ -2,14 +2,10 @@ import { Module } from '@nestjs/common';
 import { SeriesService } from './series.service';
 import { SeriesController } from './series.controller';
 import { HttpModule } from '@nestjs/axios';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SeriesEntity, SeriesMetadataEntity } from './entities/series.entity';
+import { SeriesMetadataModule } from 'src/series-metadata/series-metadata.module';
 
 @Module({
-  imports: [
-    HttpModule,
-    TypeOrmModule.forFeature([SeriesEntity, SeriesMetadataEntity]),
-  ],
+  imports: [HttpModule, SeriesMetadataModule],
   controllers: [SeriesController],
   providers: [SeriesService],
 })

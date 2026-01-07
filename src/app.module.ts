@@ -9,18 +9,29 @@ import { AuthorsModule } from './authors/authors.module';
 import { GroupsModule } from './groups/groups.module';
 import { PublishersModule } from './publishers/publishers.module';
 import { GenresModule } from './genres/genres.module';
+import { SeriesMetadataModule } from './series-metadata/series-metadata.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-    type: 'postgres', 
-    host: 'localhost', 
-    port: 5433, 
-    username: 'root', 
-    password: '123456',
-    database: 'postgres',
-    autoLoadEntities: true,
-    synchronize: true,
-  }), SeriesModule, ReleasesModule, CategoriesModule, AuthorsModule, GroupsModule, PublishersModule, GenresModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5433,
+      username: 'root',
+      password: '123456',
+      database: 'postgres',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    SeriesModule,
+    ReleasesModule,
+    CategoriesModule,
+    AuthorsModule,
+    GroupsModule,
+    PublishersModule,
+    GenresModule,
+    SeriesMetadataModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

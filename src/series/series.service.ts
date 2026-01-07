@@ -1,18 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
-import { SeriesMetadataEntity } from './entities/series.entity';
-import { Any, Repository } from 'typeorm';
-import { url } from 'inspector';
+import { SeriesMetadataService } from 'src/series-metadata/series-metadata.service';
 
 @Injectable()
 export class SeriesService {
   constructor(
     private readonly httpService: HttpService,
-    @InjectRepository(SeriesMetadataEntity)
-    private seriesMetadataRepository: Repository<SeriesMetadataEntity>,
+    private readonly seriesMetadataService: SeriesMetadataService,
   ) {}
 
   async getSeries(seriesId: string): Promise<any> {
@@ -29,7 +25,7 @@ export class SeriesService {
       .then(async (axiosResponse: AxiosResponse) => {
         const response = axiosResponse.data;
 
-        this.createOrUpdateMetadata([
+        this.seriesMetadataService.createOrUpdateMetadata([
           {
             series_id: response.series_id,
             original: response.image.url.original || '',
@@ -48,30 +44,6 @@ export class SeriesService {
       });
   }
 
-  private async createOrUpdateMetadata(values: any[]) {
-    this.seriesMetadataRepository
-      .createQueryBuilder()
-      .insert()
-      .into(SeriesMetadataEntity)
-      .values(values)
-      .orUpdate(
-        [
-          'original',
-          'thumb',
-          'bayesian_rating',
-          'type',
-          'year',
-          'title',
-          'genres',
-        ],
-        ['series_id'],
-        {
-          skipUpdateIfNoValuesChanged: true,
-        },
-      )
-      .execute();
-  }
-
   async getSeriesMetadata(seriesId: string): Promise<any> {
     return this.getSeries(seriesId);
   }
@@ -85,7 +57,7 @@ export class SeriesService {
     )
       .then(async (axiosResponse: AxiosResponse) => {
         const response = axiosResponse.data;
-        this.createOrUpdateMetadata(
+        this.seriesMetadataService.createOrUpdateMetadata(
           response.results.map((result) => {
             return {
               series_id: result.record.series_id,
@@ -113,56 +85,15 @@ export class SeriesService {
   async getRelatedSeriesMetadata(response: any): Promise<any> {
     const ids = response.related_series.map((res) => res.related_series_id);
 
-    const searchResult = await this.seriesMetadataRepository.findBy({
-      series_id: Any(ids),
-    });
-
-    const missingSeriesIds = ids.filter((id) => {
-      return !searchResult.some((meta) => +meta.series_id === id);
-    });
-
-    const missingSeriesMetadata = await Promise.all(
-      missingSeriesIds.map(async (id) => {
-        return this.getSeriesData(id.toString());
-      }),
+    const metadata = await this.seriesMetadataService.getMetadataByIds(
+      ids,
+      true,
     );
-
-    const searchMetaMap = {};
-    searchResult.forEach((related) => {
-      searchMetaMap[related.series_id] = {
-        ...related,
-        image: {
-          url: {
-            original: related.original,
-            thumb: related.thumb,
-          },
-        },
-        genres: related.genres.map((genre) => ({ genre: genre })),
-      };
-      delete searchMetaMap[related.series_id].original;
-      delete searchMetaMap[related.series_id].thumb;
-    });
-    missingSeriesMetadata.forEach((related) => {
-      searchMetaMap[related.series_id] = {
-        series_id: related.series_id,
-        image: {
-          url: {
-            original: related.image.url.original,
-            thumb: related.image.url.thumb,
-          },
-        },
-        bayesian_rating: related.bayesian_rating || 0,
-        type: related.type,
-        year: related.year,
-        title: related.title,
-        genres: related.genres,
-      };
-    });
 
     response.related_series = response.related_series.map((related) => {
       return {
         ...related,
-        metadata: searchMetaMap[related.related_series_id] || {},
+        metadata: metadata[related.related_series_id] || {},
       };
     });
 

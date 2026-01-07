@@ -3,24 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-@Entity({ name: 'series' })
-export class SeriesEntity {
-  @PrimaryColumn()
-  id: string;
-
-  @Column()
-  title: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-}
 
 @Entity({ name: 'series-metadata' })
 export class SeriesMetadataEntity {

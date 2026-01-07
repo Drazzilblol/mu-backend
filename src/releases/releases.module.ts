@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { ReleasesService } from './releases.service';
 import { ReleasesController } from './releases.controller';
 import { HttpModule } from '@nestjs/axios';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SeriesMetadataEntity } from 'src/series/entities/series.entity';
+import { SeriesMetadataModule } from 'src/series-metadata/series-metadata.module';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([SeriesMetadataEntity])],
+  imports: [HttpModule, SeriesMetadataModule],
   controllers: [ReleasesController],
   providers: [ReleasesService],
 })
