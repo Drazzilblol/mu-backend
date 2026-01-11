@@ -10,6 +10,7 @@ import { GroupsModule } from './groups/groups.module';
 import { PublishersModule } from './publishers/publishers.module';
 import { GenresModule } from './genres/genres.module';
 import { SeriesMetadataModule } from './series-metadata/series-metadata.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SeriesMetadataModule } from './series-metadata/series-metadata.module';
     PublishersModule,
     GenresModule,
     SeriesMetadataModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService],
