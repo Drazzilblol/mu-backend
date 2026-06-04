@@ -11,6 +11,7 @@ import { PublishersModule } from './publishers/publishers.module';
 import { GenresModule } from './genres/genres.module';
 import { SeriesMetadataModule } from './series-metadata/series-metadata.module';
 import { AccountModule } from './account/account.module';
+import { ListsModule } from './lists/lists.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AccountModule } from './account/account.module';
     GenresModule,
     SeriesMetadataModule,
     AccountModule,
+    ListsModule
   ],
   controllers: [AppController],
   providers: [AppService],
