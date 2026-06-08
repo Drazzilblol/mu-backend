@@ -55,7 +55,7 @@ export class AccountService {
       );
   }
 
-  async getProfile(headers: any) {
+  getProfile(headers: any) {
     return this.httpService
       .get(`https://api.mangaupdates.com/v1/account/profile`, {
         headers: { authorization: headers.authorization },

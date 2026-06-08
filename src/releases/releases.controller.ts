@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Headers } from '@nestjs/common';
 import { ReleasesService } from './releases.service';
 
 @Controller('releases')
@@ -11,7 +11,12 @@ export class ReleasesController {
   }
 
   @Post('search')
-  searchReleases(@Body() body: any) {
-    return this.releasesService.searchReleases(body);
+  searchReleases(@Body() body: any, @Headers() headers: any) {
+    return this.releasesService.searchReleases(body, headers);
+  }
+
+  @Post('bookmark/add')
+  addBookmark(@Body() body: any) {
+    return this.releasesService.addBookmark(body);
   }
 }
