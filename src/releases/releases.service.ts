@@ -92,6 +92,10 @@ export class ReleasesService {
     );
   }
 
+  async deleteBookmark(body: any): Promise<any> {
+    return this.bookmarkRepository.delete(body.bookmark_id);
+  }
+
   async createOrUpdateBookmark(body: any): Promise<any> {
     return this.bookmarkRepository
       .createQueryBuilder()
