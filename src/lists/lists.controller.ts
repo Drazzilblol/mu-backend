@@ -8,6 +8,10 @@ export class ListsContrller {
   async getProfile(@Headers() headers: any) {
     return this.listService.getLists(headers);
   }
+  @Get('series/:id')
+  async getSeriesList(@Headers() headers: any, @Param('id') id: string) {
+    return this.listService.getSeriesList(id, headers);
+  }
   @Post(':id/search')
   async searchList(
     @Headers() headers: any,
@@ -15,5 +19,20 @@ export class ListsContrller {
     @Param('id') id: string,
   ) {
     return this.listService.searchList(id, body, headers);
+  }
+
+  @Post('/series')
+  async addSeriesToList(@Body() body: any, @Headers() headers: any) {
+    return this.listService.addSeriesToList(body, headers);
+  }
+
+  @Post('/series/delete')
+  async deleteSeriesFromList(@Body() body: any, @Headers() headers: any) {
+    return this.listService.deleteSeriesFromList(body, headers);
+  }
+
+  @Post('/series/update')
+  async updateSeriesList(@Body() body: any, @Headers() headers: any) {
+    return this.listService.updateSeriesList(body, headers);
   }
 }

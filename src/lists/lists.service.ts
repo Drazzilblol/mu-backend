@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, Headers } from '@nestjs/common';
+import { HttpException, Injectable, Headers, Body } from '@nestjs/common';
 import { catchError, map } from 'rxjs';
 import { SeriesMetadataService } from 'src/series-metadata/series-metadata.service';
 
@@ -13,6 +13,60 @@ export class ListsService {
   async getLists(headers: any) {
     return this.httpService
       .get(`https://api.mangaupdates.com/v1/lists`, {
+        headers: { authorization: headers.authorization },
+      })
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async getSeriesList(seriesId: string, headers: any) {
+    return this.httpService
+      .get(`https://api.mangaupdates.com/v1/lists/series/${seriesId}`, {
+        headers: { authorization: headers.authorization },
+      })
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async addSeriesToList(body: any, headers: any) {
+    console.log(body);
+    return this.httpService
+      .post(`https://api.mangaupdates.com/v1/lists/series`, body, {
+        headers: { authorization: headers.authorization },
+      })
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async deleteSeriesFromList(body: any, headers: any) {
+    return this.httpService
+      .post(`https://api.mangaupdates.com/v1/lists/series/delete`, body, {
+        headers: { authorization: headers.authorization },
+      })
+      .pipe(
+        catchError((error) => {
+          throw new HttpException(error.message, error.status);
+        }),
+        map((response) => response.data),
+      );
+  }
+
+  async updateSeriesList(body: any, headers: any) {
+    console.log(body);
+    return this.httpService
+      .post(`https://api.mangaupdates.com/v1/lists/series/update`, body, {
         headers: { authorization: headers.authorization },
       })
       .pipe(
